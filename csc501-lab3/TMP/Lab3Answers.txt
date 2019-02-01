@@ -1,0 +1,37 @@
+Q1.
+
+1.Priority Ceiling also solves Priority Inversion Problem. It works in the below described way:
+
+Each Lock has a Priority called Ceiling Priority. Let's call it CP for Lock L.
+Let PP be the Process Priority of the process P, which is trying to access the lock L.
+
+if(P acquires lock L) {
+	Save PP to Old PP;
+	PP = CP; (Where CP > PP)
+}
+if(P releases lock L) {
+	PP = Old PP;
+}
+
+This works well when CP is designed to be greater than all possible PP values.
+We temporarily raise the PP to CP while the lock L is being held by Process P.
+Reference: https://en.wikipedia.org/wiki/Priority_inversion#Solutions
+
+2. A test case to check priority inversion problem has been designed in task1.c. Specifically the test case checks the transitivity of priority inheritance as described in the PA3.
+Three processes A,B,C with priorities 20,30,40. Two locks/Semaphores LS1 and LS2.
+B acquires LS2 and sleeps
+A acquires LS1 and waits for LS2
+C waits for LS1
+
+Priority of A and B should be changed to 40. Test case checks this. This test case fails for semaphores.
+
+Q2.
+
+As mentioned in the question, multiple readers can call the do_update() function. When two readers call the do_update, they will both be acquiring the lock as the read lock is not exclusive. Since both readers can now update at the same time, some changes might be lost. Example: If Reader 1 and Reader 2 both have the read lock, they will procedd to add to buffer. In the buffer_add() function, if Reader 1 is rescheduled and Reader 2 becomes active, the Reader 2's changes will be lost when Reader 1 becomes active and overwrites Reader 2's write.
+Inside buffer_add() method:
+
+memcpy (buf->buf + buf->len, txt, size); -> Point A
+    buf->len += size;
+	
+At Point A: If Reader 1 is preempted here and reader 2 is active here, Reader 2 and Reader 1 will get the buf->len value as same. Reader 1 will over write Reader 2's write when it becomes active again..
+

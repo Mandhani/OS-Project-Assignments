@@ -1,0 +1,41 @@
+Q1:
+Exponential Distribution Scheduler:
+Advantages:
+	- Avoids Starvation of processes by using randomly generated numbers using exponential distribution to select processes.
+	- Exponential distribution allows higher priority process are given more cpu time.
+	- Implements Round Robin in case of same priorities for fairness.
+Disadvantages:
+	- Random numbers decide the process to be scheduled even though it's exponentially distributed. May lead to waiting of higher priority processes.
+	- If the seed is known, then the sequence of random numbers isn't really random. CPU can hijacked by changing priority to the next predicted priority(using the "not-so-random" sequence) just before the allocated time quantum expires.
+
+Linux-Like Scheduler:
+Advantages:
+	- Avoids Starvation by guaranteeing each process a cpu time in an epoch based on priority.
+	- Does not depend on random numbers. Higher priority processes are executed before lower priority processes within an epoch and are guaranteed more time within an epoch.
+	- Implements Round Robin in case of same goodness to ensure fairness.
+Disadvantages:
+	- we have to compute the time quantum for each existing process for every epoch. High time complexity in case of higher number of existing processes and can be bad when scaled up.
+	- Too complex to understand.
+	
+Original Round Robin Scheduler on XINU:
+Advantages:
+	- Very simple in nature and easy to implement.
+	- Less time complexity as Ready queue readily gives the process with highest priority.
+	- Ensures processes with same priority are given alternate time slices of cpu for fairness.
+Disadvantages:
+	- Starvation is a big problem. Low priority processes are starved of cpu time if higher priority process are active all the time.
+	
+Q2:
+In both the scheduling policies, NULL process is scheduled only when there are no other ready processes.
+
+Exponential Distribution Scheduler:
+ - The Null process holds the last entry in the ready queue(i.e., just before rdytail) and has a priority of 0.
+ - Since we select the process with least priority greater than the random number and random number > 0 (always), we can safely say that any process in the ready queue with a priority greater than zero will always get executed till it exists.
+ - If no ready processes are left, then NULL process is scheduled and will be removed once any process enters ready queue.
+ 
+Linux-Like Scheduler: 
+ - NULL process has a priority of 0
+ - So the time quantum allocated to this process is always 0 (since time quantum is set to priority initially and never increments).
+ - The goodness value is also always zero for NULL process (since is set to priority and counter, both zero for NULL process).
+ - Thus only when there are no ready processes, the NULL process is scheduled.
+ - As soon as a process enters ready state, that process is scheduled and NULL process is unscheduled.

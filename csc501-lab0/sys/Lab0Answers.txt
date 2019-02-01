@@ -1,0 +1,60 @@
+Q1:
+_______________________________
+|              ...            |
+|-----------------------------|  -->  0x00fffffc : BASE POINTER FOR PNULL PROCESS
+|                             | 
+|         PRNULL PROCESS      |  -->  0x00ffff2c : STACK POINTER FOR PNULL PROCESS
+|                             |
+|                             |  -->  0x00fff000 : STACK LIMIT FOR PNULL PROCESS
+|-----------------------------|  -->  0x00ffeff8 : BASE POINTER FOR MAIN PROCESS
+|                             |  
+|     MAIN PROCESS STACK      |  -->  0x00ffefa0 : STACK POINTER FOR MAIN PROCESS
+|                             |
+|-----------------------------|  -->  0x00ffdffc : STACK LIMIT FOR MAIN PROCESS
+|                             |
+|            HEAP             |
+|                             |
+|_____________________________|  -->  0x00026bd8 : END OF BSS SEGMENT
+|            BSS              |
+|_____________________________|  -->  0x0001e540 : END OF DATA SEGMENT
+|            DATA             |
+|_____________________________|  -->  0x00018fb7 : END OF TEXT SEGMENT
+|            TEXT             |
+|_____________________________|  -->  0x00000000 
+
+Reference: https://en.wikipedia.org/wiki/Data_segment
+
+-----------------------------------------------------------END OF Q1--------------------------------------------------------
+Q2:
+
+TOP Before calling printtos(): 0x00ffeff0
+TOP After calling printtos() : 0x00ffefa0
+
+There is an difference at these addresses because after printtos() is called, first, the old base pointer is pushed to stack. Next, the space for local variables is allocated in stack. After this, the old ebx, esi and edi are pushed to stack id they are used in printtos(). So after all of these are pushed at the beginning of printtos() method, this is the difference to the top of the stack before and after printtos() is called.
+           STACK
+_______________________________
+|             ...              |
+|------------------------------|
+
+|          Arguments(If any)   |
+|------------------------------|
+|          Return Address      |-----------> Top of stack just before printtos() starts. Return address is pushed by the previous(main) method to the stack.
+|------------------------------|-----------> printtos() starts here. 
+|          Base Pointer        |-----------> Old base pointer is pushed to stack. And this becomes the top of stack for now.
+|------------------------------|
+|          Local Variables     |-----------> Local variables are pushed to stack.
+|------------------------------|
+|       Saved Registers        |
+|   (EBX, ESI and EDI) if used |
+|------------------------------|-----------> Top of stack after printtos() starts.
+|            ...               |
+
+Reference: https://www.csee.umbc.edu/~chang/cs313.s02/stack.shtml
+
+-----------------------------------------------------------END OF Q2--------------------------------------------------------
+Q3:
+
+In the given setup, local variables are NOT shown in Task 3 as the compiler optimization is enabled. Compiler optimization tries to optimize the performance and code size while compromising on the compilation time and ease of debugging. Compiler optimization may have moved the variables to a different location and we might be seeing the pointers of those in stack. 
+However, when the compiler optimization is disabled, the local variables are shown in Task 3.
+
+Reference: https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
